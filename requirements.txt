@@ -1,0 +1,14 @@
+reportlab
+pymupdf
+pikepdf
+pillow
+python-docx
+ebooklib
+pypandoc
+
+ruff
+mypy
+pytest
+pytest-cov
+pytest-mock
+pre-commit
