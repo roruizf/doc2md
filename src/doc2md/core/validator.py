@@ -1,4 +1,6 @@
+import re
 from dataclasses import dataclass
+from pathlib import Path
 
 from doc2md.core.document import MarkdownDocument
 
@@ -11,11 +13,17 @@ class ValidationResult:
     warnings: list[str]
 
 
-def validate(doc: MarkdownDocument) -> ValidationResult:
+def validate(
+    doc: MarkdownDocument,
+    rendered_markdown: str | None = None,
+    output_path: Path | None = None,
+) -> ValidationResult:
     warnings: list[str] = []
     warnings.extend(_frontmatter_warnings(doc))
     warnings.extend(_page_sequence_warnings(doc))
     warnings.extend(_index_anchor_warnings(doc))
+    if rendered_markdown is not None and output_path is not None:
+        warnings.extend(_image_reference_warnings(rendered_markdown, output_path))
     return ValidationResult(valid=len(warnings) == 0, warnings=warnings)
 
 
@@ -66,3 +74,13 @@ def _section_anchor_ids(doc: MarkdownDocument) -> set[str]:
 def _page_contains_anchor(doc: MarkdownDocument, anchor_id: str) -> bool:
     anchor_markup = f'id="{anchor_id}"'
     return any(anchor_markup in page.content for page in doc.pages)
+
+
+def _image_reference_warnings(rendered_markdown: str, output_path: Path) -> list[str]:
+    warnings: list[str] = []
+    image_paths = re.findall(r"!\[[^\]]*]\(([^)]+)\)", rendered_markdown)
+    for image_path in image_paths:
+        candidate = output_path.parent / image_path
+        if not candidate.exists():
+            warnings.append(f"Image reference does not exist: {image_path}")
+    return warnings

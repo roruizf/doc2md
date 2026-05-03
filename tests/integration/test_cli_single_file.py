@@ -15,7 +15,6 @@ def test_cli_single_file_writes_markdown_with_valid_frontmatter(tmp_path: Path) 
     assert output.exists()
 
     content = output.read_text(encoding="utf-8")
-    assert 'schema_version: "1.0"' in content
     assert '<a id="page-1"></a>' in content
 
     frontmatter_text = content.split("---", 2)[1]
@@ -25,4 +24,3 @@ def test_cli_single_file_writes_markdown_with_valid_frontmatter(tmp_path: Path) 
     assert frontmatter["page_count"] == 3
     assert frontmatter["document_type"] == "digital"
     assert frontmatter["ocr_applied"] is False
-

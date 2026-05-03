@@ -1,30 +1,14 @@
 import logging
 from pathlib import Path
 
-import yaml
-
 from doc2md.config import Settings
 from doc2md.core.detector import detect_format
 from doc2md.core.dispatcher import get_converter
-from doc2md.core.document import Frontmatter, MarkdownDocument
 from doc2md.core.validator import validate
+from doc2md.images.extractor import extract_images_from_pdf
+from doc2md.rendering.markdown_renderer import render
 
 LOGGER = logging.getLogger(__name__)
-
-
-class _QuotedString(str):
-    pass
-
-
-class _FrontmatterDumper(yaml.SafeDumper):
-    pass
-
-
-def _quoted_string_representer(dumper: yaml.Dumper, data: _QuotedString) -> yaml.Node:
-    return dumper.represent_scalar("tag:yaml.org,2002:str", data, style='"')
-
-
-_FrontmatterDumper.add_representer(_QuotedString, _quoted_string_representer)
 
 
 def run(input_path: Path, output_path: Path, settings: Settings) -> None:
@@ -33,27 +17,13 @@ def run(input_path: Path, output_path: Path, settings: Settings) -> None:
     converter.settings = settings
 
     doc = converter.convert(input_path)
-    result = validate(doc)
+    extracted_images = (
+        extract_images_from_pdf(input_path, output_path.parent) if detected_format == "pdf" else []
+    )
+    markdown = render(doc, output_path, extracted_images, settings)
+    result = validate(doc, rendered_markdown=markdown, output_path=output_path)
     for warning in result.warnings:
         LOGGER.warning(warning)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(_render_document(doc), encoding="utf-8")
-
-
-def _render_document(doc: MarkdownDocument) -> str:
-    frontmatter_yaml = _frontmatter_yaml(doc.frontmatter)
-    pages = "".join(
-        f'<a id="{page.anchor_id}"></a>\n**[Page {page.number}]**\n\n{page.content}\n\n'
-        for page in doc.pages
-    )
-    return f"---\n{frontmatter_yaml}---\n\n{pages}"
-
-
-def _frontmatter_yaml(frontmatter: Frontmatter) -> str:
-    data = frontmatter.model_dump()
-    for key, value in data.items():
-        if isinstance(value, str):
-            data[key] = _QuotedString(value)
-    return yaml.dump(data, Dumper=_FrontmatterDumper, sort_keys=False)
-
+    output_path.write_text(markdown, encoding="utf-8")
