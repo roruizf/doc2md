@@ -1,0 +1,14 @@
+INTRODUCTION
+============
+
+This text fixture contains simple prose and a cross-reference: see page 12, Table 3.
+
+BACKGROUND
+----------
+
+The second section uses an underline marker and more paragraph text.
+
+CONCLUSION
+==========
+
+Final observations are intentionally short and deterministic.
