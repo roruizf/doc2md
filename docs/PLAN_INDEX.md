@@ -7,7 +7,7 @@
 - [performance.md](./performance.md) — Benchmark results (populated in P11b)
 
 ## Current Status
-- [ ] P0 — Environment Setup
+- [x] P0 — Environment Setup
 - [ ] P1 — Core Skeleton + PDF Digital MVP
 - [ ] P2 — Rendering Layer
 - [ ] P3 — Docling Integration
@@ -25,7 +25,7 @@
 (Each agent appends their Phase Summary here after completing their phase)
 
 ### P0 Summary
-_pending_
+P0 completed with a project-local `.venv` created by `uv` using Python 3.11.13. The fixture generator is at `scripts/generate_fixtures.py` and can be re-run with `.venv/bin/python scripts/generate_fixtures.py`; it generated and confirmed all 11 fixtures: `sample_digital.pdf`, `sample_multicolumn.pdf`, `sample_scanned.pdf`, `sample_locked.pdf`, `sample_mixed.pdf`, `sample.docx`, `sample.odt`, `sample.epub`, `sample.html`, `sample.txt`, and `sample_image.png`. System binaries are reachable at `/usr/bin/tesseract`, `/usr/bin/qpdf`, `/usr/bin/pandoc`, and `/usr/bin/pdftoppm`; `qpdf --version` reports 10.6.3. `requirements.txt` captures the P0 fixture/tooling dependencies for reproducible setup with `uv pip install -r requirements.txt`.
 
 ### P1 Summary
 _pending_
