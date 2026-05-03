@@ -28,7 +28,7 @@
 P0 completed with a project-local `.venv` created by `uv` using Python 3.11.13. The fixture generator is at `scripts/generate_fixtures.py` and can be re-run with `.venv/bin/python scripts/generate_fixtures.py`; it generated and confirmed all 11 fixtures: `sample_digital.pdf`, `sample_multicolumn.pdf`, `sample_scanned.pdf`, `sample_locked.pdf`, `sample_mixed.pdf`, `sample.docx`, `sample.odt`, `sample.epub`, `sample.html`, `sample.txt`, and `sample_image.png`. System binaries are reachable at `/usr/bin/tesseract`, `/usr/bin/qpdf`, `/usr/bin/pandoc`, and `/usr/bin/pdftoppm`; `qpdf --version` reports 10.6.3. `requirements.txt` captures the P0 fixture/tooling dependencies for reproducible setup with `uv pip install -r requirements.txt`.
 
 ### P1 Summary
-_pending_
+P1 completed the core Python package skeleton and PDF digital MVP. The canonical document models are `Frontmatter`, `IndexEntry`, `Page`, and `MarkdownDocument` with fields matching §4; `validate(doc) -> ValidationResult` is implemented and called by `pipeline.run` before writing output. The dispatcher returns `PdfDigitalConverter` for `pdf` only, while unsupported formats raise `UnsupportedFormat`; the pipeline currently renders YAML frontmatter and page anchors inline, to be replaced by `markdown_renderer` in P2. `PdfDigitalConverter` extracts per-page text with PyMuPDF and sets `document_type="digital"` / `ocr_applied=False`, but intentionally does not extract images yet; P2 should add image handling and populate richer `index_entries`.
 
 ### P2 Summary
 _pending_
