@@ -1,10 +1,53 @@
-from doc2md.converters.pdf_digital import PdfDigitalConverter
+from pathlib import Path
+from typing import Literal
+
+import fitz
+
 from doc2md.core.base_converter import BaseConverter
 from doc2md.core.exceptions import UnsupportedFormat
 
+MEANINGFUL_TEXT_CHARS = 20
 
-def get_converter(format: str) -> BaseConverter:
+
+def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
     if format == "pdf":
-        return PdfDigitalConverter()
+        if input_path is None:
+            from doc2md.converters.pdf_digital import PdfDigitalConverter
+
+            return PdfDigitalConverter()
+        classification = classify_pdf(input_path)
+        if classification == "digital":
+            from doc2md.converters.pdf_digital import PdfDigitalConverter
+
+            return PdfDigitalConverter()
+        if classification == "scanned":
+            from doc2md.converters.pdf_scanned import PdfScannedConverter
+
+            return PdfScannedConverter()
+        from doc2md.converters.pdf_mixed import PdfMixedConverter
+
+        return PdfMixedConverter()
     raise UnsupportedFormat(f"Unsupported format for P1: {format}")
 
+
+def classify_pdf(path: Path) -> Literal["digital", "scanned", "mixed"]:
+    with fitz.open(path) as pdf:
+        page_count = len(pdf)
+        if page_count == 0:
+            return "scanned"
+        meaningful_pages = sum(
+            1
+            for page in pdf
+            if _meaningful_char_count(page.get_text("text")) >= MEANINGFUL_TEXT_CHARS
+        )
+
+    meaningful_ratio = meaningful_pages / page_count
+    if meaningful_ratio == 1:
+        return "digital"
+    if meaningful_ratio < 0.2:
+        return "scanned"
+    return "mixed"
+
+
+def _meaningful_char_count(text: str) -> int:
+    return sum(1 for character in text if not character.isspace())

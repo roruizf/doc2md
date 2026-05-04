@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 def run(input_path: Path, output_path: Path, settings: Settings) -> None:
     detected_format = detect_format(input_path)
-    converter = get_converter(detected_format)
+    converter = get_converter(detected_format, input_path)
     converter.settings = settings
 
     doc = converter.convert(input_path)

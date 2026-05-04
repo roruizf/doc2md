@@ -1,8 +1,11 @@
 import pytest
 
 from doc2md.converters.pdf_digital import PdfDigitalConverter
-from doc2md.core.dispatcher import get_converter
+from doc2md.converters.pdf_mixed import PdfMixedConverter
+from doc2md.converters.pdf_scanned import PdfScannedConverter
+from doc2md.core.dispatcher import classify_pdf, get_converter
 from doc2md.core.exceptions import UnsupportedFormat
+from tests.conftest import FIXTURES
 
 
 def test_get_converter_pdf_returns_pdf_digital_converter() -> None:
@@ -13,3 +16,22 @@ def test_get_converter_docx_raises_unsupported_format() -> None:
     with pytest.raises(UnsupportedFormat):
         get_converter("docx")
 
+
+def test_classify_pdf_returns_digital_for_sample_digital_pdf() -> None:
+    assert classify_pdf(FIXTURES / "sample_digital.pdf") == "digital"
+
+
+def test_classify_pdf_returns_scanned_for_sample_scanned_pdf() -> None:
+    assert classify_pdf(FIXTURES / "sample_scanned.pdf") == "scanned"
+
+
+def test_classify_pdf_returns_mixed_for_sample_mixed_pdf() -> None:
+    assert classify_pdf(FIXTURES / "sample_mixed.pdf") == "mixed"
+
+
+def test_get_converter_pdf_with_path_routes_scanned_pdf() -> None:
+    assert isinstance(get_converter("pdf", FIXTURES / "sample_scanned.pdf"), PdfScannedConverter)
+
+
+def test_get_converter_pdf_with_path_routes_mixed_pdf() -> None:
+    assert isinstance(get_converter("pdf", FIXTURES / "sample_mixed.pdf"), PdfMixedConverter)

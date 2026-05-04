@@ -26,3 +26,28 @@ def test_full_pipeline_extracts_images_renders_table_and_index(tmp_path: Path) -
     assert "### Pages" in content
     assert "### Tables" in content
     assert "### Figures" in content
+
+
+def test_mixed_pdf_pipeline_combines_digital_and_ocr_content(tmp_path: Path) -> None:
+    output = tmp_path / "mixed.md"
+    result = CliRunner().invoke(
+        app,
+        [
+            str(FIXTURES / "sample_mixed.pdf"),
+            "-o",
+            str(output),
+            "--ocr-engine",
+            "direct",
+            "--ocr-lang",
+            "eng",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    content = output.read_text(encoding="utf-8")
+    frontmatter = yaml.safe_load(content.split("---", 2)[1])
+
+    assert frontmatter["document_type"] == "mixed"
+    assert frontmatter["ocr_applied"] is True
+    assert "Sample Digital PDF" in content
+    assert "Introduction" in content
