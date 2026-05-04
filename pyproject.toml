@@ -7,6 +7,7 @@ name = "doc2md"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
+    "docling==2.92.0",
     "typer",
     "pymupdf",
     "pyyaml",
@@ -40,5 +41,5 @@ strict_optional = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["fitz", "yaml"]
+module = ["docling.*", "fitz", "yaml"]
 ignore_missing_imports = true

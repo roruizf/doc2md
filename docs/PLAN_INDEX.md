@@ -8,8 +8,8 @@
 
 ## Current Status
 - [x] P0 — Environment Setup
-- [ ] P1 — Core Skeleton + PDF Digital MVP
-- [ ] P2 — Rendering Layer
+- [x] P1 — Core Skeleton + PDF Digital MVP
+- [x] P2 — Rendering Layer
 - [ ] P3 — Docling Integration
 - [ ] P4 — Scanned PDFs (OCR)
 - [ ] P5 — Locked PDFs
@@ -34,7 +34,7 @@ P1 completed the core Python package skeleton and PDF digital MVP. The canonical
 P2 completed the rendering layer and image extraction path. `markdown_renderer.render(doc, output_path, extracted_images, settings) -> str` now composes frontmatter, page anchors, sanitized body content, page image references, and the end-of-document index; `pipeline.run` calls PyMuPDF image extraction for PDFs before rendering, then calls `validate(doc, rendered_markdown=..., output_path=...)` so image references are checked relative to the output file. `PdfDigitalConverter` still uses PyMuPDF only: text comes from `page.get_text("text")`, table detection is best-effort via `page.find_tables()`, and image extraction remains centralized in `images/extractor.py` for reuse by P3. P3 should keep the `MarkdownDocument` model fields `frontmatter`, `pages`, and `index_entries`; it should populate richer heading hierarchy in `Page.content` and add `IndexEntry(kind="section", label, anchor_id)` entries while preserving page/table/figure entries.
 
 ### P3 Summary
-_pending_
+P3 completed Docling integration for digital PDFs. `PdfDigitalConverter` now uses Docling as the primary path with `PdfPipelineOptions(do_ocr=False, accelerator_options=CPU)` and falls back to the previous PyMuPDF raw extraction path when Docling raises, setting `fallback_used=True` and logging `Docling failed (...), falling back to PyMuPDF raw extraction`; PyMuPDF remains responsible for encryption checks, page count, fallback extraction, and shared image extraction through `images/extractor.py`. The dispatcher still routes every detected `"pdf"` to `PdfDigitalConverter`; P4 must split scanned vs digital routing there or behind that converter. Docling is installed and working in the venv with an explicit `docling==2.92.0` dependency; tests confirm multicolumn reading order, heading rendering, section `IndexEntry` population, and fallback behavior.
 
 ### P4 Summary
 _pending_
