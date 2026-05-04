@@ -5,6 +5,7 @@ import typer
 
 from doc2md.config import Settings
 from doc2md.core import pipeline
+from doc2md.core.exceptions import Doc2MdError
 from doc2md.logging_setup import setup_logging
 
 app = typer.Typer(add_completion=False)
@@ -31,10 +32,22 @@ def convert(
             ),
         ),
     ] = "docling",
+    password: Annotated[
+        str | None,
+        typer.Option("--password", help="Password for encrypted PDFs."),
+    ] = None,
     verbose: Annotated[bool, typer.Option("--verbose")] = False,
 ) -> None:
     setup_logging(verbose)
-    pipeline.run(input_path, output, Settings(ocr_lang=ocr_lang, ocr_engine=ocr_engine))
+    try:
+        pipeline.run(
+            input_path,
+            output,
+            Settings(ocr_lang=ocr_lang, ocr_engine=ocr_engine, password=password),
+        )
+    except Doc2MdError as exc:
+        typer.secho(str(exc), err=True, fg=typer.colors.RED)
+        raise typer.Exit(1) from exc
 
 
 def main() -> None:

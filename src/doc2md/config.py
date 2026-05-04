@@ -8,3 +8,4 @@ class Settings(BaseModel):
     converter_version: str = "0.1.0"
     ocr_lang: str | None = None
     ocr_engine: Literal["docling", "direct"] = "docling"
+    password: str | None = None

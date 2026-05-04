@@ -1,6 +1,7 @@
 import pytest
 
 from doc2md.converters.pdf_digital import PdfDigitalConverter
+from doc2md.converters.pdf_locked import PdfLockedConverter
 from doc2md.converters.pdf_mixed import PdfMixedConverter
 from doc2md.converters.pdf_scanned import PdfScannedConverter
 from doc2md.core.dispatcher import classify_pdf, get_converter
@@ -35,3 +36,7 @@ def test_get_converter_pdf_with_path_routes_scanned_pdf() -> None:
 
 def test_get_converter_pdf_with_path_routes_mixed_pdf() -> None:
     assert isinstance(get_converter("pdf", FIXTURES / "sample_mixed.pdf"), PdfMixedConverter)
+
+
+def test_get_converter_pdf_checks_encryption_before_classification() -> None:
+    assert isinstance(get_converter("pdf", FIXTURES / "sample_locked.pdf"), PdfLockedConverter)

@@ -5,6 +5,7 @@ import fitz
 
 from doc2md.core.base_converter import BaseConverter
 from doc2md.core.exceptions import UnsupportedFormat
+from doc2md.utils.pdf_unlock import is_encrypted
 
 MEANINGFUL_TEXT_CHARS = 20
 
@@ -15,6 +16,10 @@ def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
             from doc2md.converters.pdf_digital import PdfDigitalConverter
 
             return PdfDigitalConverter()
+        if is_encrypted(input_path):
+            from doc2md.converters.pdf_locked import PdfLockedConverter
+
+            return PdfLockedConverter()
         classification = classify_pdf(input_path)
         if classification == "digital":
             from doc2md.converters.pdf_digital import PdfDigitalConverter

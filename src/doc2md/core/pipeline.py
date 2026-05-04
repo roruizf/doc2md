@@ -16,14 +16,22 @@ def run(input_path: Path, output_path: Path, settings: Settings) -> None:
     converter = get_converter(detected_format, input_path)
     converter.settings = settings
 
-    doc = converter.convert(input_path)
-    extracted_images = (
-        extract_images_from_pdf(input_path, output_path.parent) if detected_format == "pdf" else []
-    )
-    markdown = render(doc, output_path, extracted_images, settings)
-    result = validate(doc, rendered_markdown=markdown, output_path=output_path)
-    for warning in result.warnings:
-        LOGGER.warning(warning)
+    try:
+        doc = converter.convert(input_path)
+        image_source_path = getattr(converter, "image_source_path", None) or input_path
+        extracted_images = (
+            extract_images_from_pdf(image_source_path, output_path.parent)
+            if detected_format == "pdf"
+            else []
+        )
+        markdown = render(doc, output_path, extracted_images, settings)
+        result = validate(doc, rendered_markdown=markdown, output_path=output_path)
+        for warning in result.warnings:
+            LOGGER.warning(warning)
 
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(markdown, encoding="utf-8")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(markdown, encoding="utf-8")
+    finally:
+        cleanup = getattr(converter, "cleanup", None)
+        if callable(cleanup):
+            cleanup()
