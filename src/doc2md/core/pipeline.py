@@ -19,11 +19,12 @@ def run(input_path: Path, output_path: Path, settings: Settings) -> None:
     try:
         doc = converter.convert(input_path)
         image_source_path = getattr(converter, "image_source_path", None) or input_path
-        extracted_images = (
-            extract_images_from_pdf(image_source_path, output_path.parent)
-            if detected_format == "pdf"
-            else []
-        )
+        if detected_format == "pdf":
+            extracted_images = extract_images_from_pdf(image_source_path, output_path.parent)
+        elif hasattr(converter, "extract_images"):
+            extracted_images = converter.extract_images(input_path, output_path.parent)
+        else:
+            extracted_images = []
         markdown = render(doc, output_path, extracted_images, settings)
         result = validate(doc, rendered_markdown=markdown, output_path=output_path)
         for warning in result.warnings:

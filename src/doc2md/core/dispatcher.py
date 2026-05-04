@@ -32,6 +32,14 @@ def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
         from doc2md.converters.pdf_mixed import PdfMixedConverter
 
         return PdfMixedConverter()
+    if format == "docx":
+        from doc2md.converters.docx import DocxConverter
+
+        return DocxConverter()
+    if format == "odt":
+        from doc2md.converters.odt import OdtConverter
+
+        return OdtConverter()
     raise UnsupportedFormat(f"Unsupported format for P1: {format}")
 
 

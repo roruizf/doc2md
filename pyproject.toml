@@ -11,6 +11,8 @@ dependencies = [
     "langdetect",
     "pillow",
     "pytesseract",
+    "pypandoc",
+    "python-docx",
     "typer",
     "pymupdf",
     "pyyaml",
@@ -44,5 +46,14 @@ strict_optional = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["docling.*", "fitz", "langdetect", "pytesseract", "yaml"]
+module = [
+    "docling.*",
+    "docx.*",
+    "fitz",
+    "langdetect",
+    "pypandoc",
+    "pypandoc.*",
+    "pytesseract",
+    "yaml",
+]
 ignore_missing_imports = true

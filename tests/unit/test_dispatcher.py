@@ -1,5 +1,7 @@
 import pytest
 
+from doc2md.converters.docx import DocxConverter
+from doc2md.converters.odt import OdtConverter
 from doc2md.converters.pdf_digital import PdfDigitalConverter
 from doc2md.converters.pdf_locked import PdfLockedConverter
 from doc2md.converters.pdf_mixed import PdfMixedConverter
@@ -14,8 +16,16 @@ def test_get_converter_pdf_returns_pdf_digital_converter() -> None:
 
 
 def test_get_converter_docx_raises_unsupported_format() -> None:
+    assert isinstance(get_converter("docx"), DocxConverter)
+
+
+def test_get_converter_odt_returns_odt_converter() -> None:
+    assert isinstance(get_converter("odt"), OdtConverter)
+
+
+def test_get_converter_unsupported_raises_unsupported_format() -> None:
     with pytest.raises(UnsupportedFormat):
-        get_converter("docx")
+        get_converter("epub")
 
 
 def test_classify_pdf_returns_digital_for_sample_digital_pdf() -> None:

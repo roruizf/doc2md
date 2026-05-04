@@ -15,6 +15,10 @@ app = typer.Typer(add_completion=False)
 def convert(
     input_path: Annotated[Path, typer.Argument(exists=True, file_okay=True, dir_okay=False)],
     output: Annotated[Path, typer.Option("--output", "-o")],
+    images: Annotated[
+        Literal["placeholder", "omit", "vlm"],
+        typer.Option("--images", help="Image handling strategy for extracted document images."),
+    ] = "placeholder",
     ocr_lang: Annotated[
         str | None,
         typer.Option(
@@ -43,7 +47,12 @@ def convert(
         pipeline.run(
             input_path,
             output,
-            Settings(ocr_lang=ocr_lang, ocr_engine=ocr_engine, password=password),
+            Settings(
+                images_strategy=images,
+                ocr_lang=ocr_lang,
+                ocr_engine=ocr_engine,
+                password=password,
+            ),
         )
     except Doc2MdError as exc:
         typer.secho(str(exc), err=True, fg=typer.colors.RED)
