@@ -7,6 +7,8 @@ name = "doc2md"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
+    "beautifulsoup4",
+    "chardet",
     "docling==2.92.0",
     "ebooklib",
     "langdetect",
@@ -20,6 +22,7 @@ dependencies = [
     "pyyaml",
     "python-magic",
     "pydantic>=2",
+    "markdownify",
 ]
 
 [project.scripts]
@@ -27,6 +30,7 @@ doc2md = "doc2md.cli:main"
 
 [project.optional-dependencies]
 dev = [
+    "isort",
     "pytest",
     "pytest-cov",
     "pytest-mock",
@@ -49,11 +53,14 @@ disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
 module = [
+    "bs4.*",
+    "chardet.*",
     "docling.*",
     "docx.*",
     "ebooklib.*",
     "fitz",
     "langdetect",
+    "markdownify.*",
     "markitdown.*",
     "pypandoc",
     "pypandoc.*",

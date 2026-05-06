@@ -44,6 +44,18 @@ def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
         from doc2md.converters.epub import EpubConverter
 
         return EpubConverter()
+    if format == "html":
+        from doc2md.converters.html import HtmlConverter
+
+        return HtmlConverter()
+    if format == "txt":
+        from doc2md.converters.txt import TxtConverter
+
+        return TxtConverter()
+    if format == "image":
+        from doc2md.converters.image import ImageConverter
+
+        return ImageConverter()
     raise UnsupportedFormat(f"Unsupported format: {format}")
 
 

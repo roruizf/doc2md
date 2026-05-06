@@ -15,7 +15,7 @@
 - [ ] P5 — Locked PDFs
 - [ ] P6 — DOCX + ODT
 - [x] P7 — EPUB
-- [ ] P8 — HTML + TXT + Images
+- [x] P8 — HTML + TXT + Images
 - [ ] P9 — Batch Mode
 - [ ] P10 — VLM (OpenRouter)
 - [ ] P11a — Packaging
@@ -49,7 +49,7 @@ P6 completed DOCX and ODT conversion. `DocxConverter` and `OdtConverter` are bot
 P7 completed EPUB conversion. `EpubConverter` is wired in through `core.dispatcher.get_converter("epub")`, uses `ebooklib.epub.read_epub` to read spine-ordered chapter documents, converts chapter XHTML through `markitdown.MarkItDown().convert_stream`, and emits one `Page` per chapter with `document_type="epub"` and EPUB metadata-derived title/language frontmatter. EPUB images are extracted from `ITEM_IMAGE` into the shared `images/figN_pageM.ext` naming convention, using the chapter that references each image or page `0` for global images; `markitdown` is installed and declared in `pyproject.toml` for P8 reuse with HTML. Tests cover three chapter anchors, metadata frontmatter, image extraction, dispatcher routing, and pipeline-rendered Markdown output.
 
 ### P8 Summary
-_pending_
+P8 completed lightweight format conversion. `HtmlConverter`, `TxtConverter`, and `ImageConverter` are wired through `core.dispatcher.get_converter` for `html`, `txt`, and `image`; HTML uses MarkItDown with a BeautifulSoup/markdownify fallback and extracts local `<img>` assets into the shared `images/figN_page1.ext` convention, TXT uses chardet-based decoding with low-confidence UTF-8 replacement fallback plus heading inference and language detection, and standalone images use PIL plus Tesseract OCR with `document_type="scanned-image"` while copying the source image as figure 1. All converters now work end-to-end for PDF digital/scanned/mixed/locked, DOCX, ODT, EPUB, HTML, TXT, and image; the CLI still accepts only a single file input path, so P9 should add directory input plus recursive batch traversal.
 
 ### P9 Summary
 _pending_
