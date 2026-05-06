@@ -14,7 +14,7 @@
 - [ ] P4 — Scanned PDFs (OCR)
 - [ ] P5 — Locked PDFs
 - [ ] P6 — DOCX + ODT
-- [ ] P7 — EPUB
+- [x] P7 — EPUB
 - [ ] P8 — HTML + TXT + Images
 - [ ] P9 — Batch Mode
 - [ ] P10 — VLM (OpenRouter)
@@ -46,7 +46,7 @@ P5 completed locked PDF handling. PDF routing now checks encryption first in `co
 P6 completed DOCX and ODT conversion. `DocxConverter` and `OdtConverter` are both wired into `core.dispatcher.get_converter`; DOCX uses Docling as a best-effort primary probe and falls back to `python-docx` for section-aware conversion, heading mapping, GFM table rendering, and ZIP-based image extraction from `word/media/`. ODT uses `pypandoc.convert_file(..., "gfm-raw_html")`, strips pandoc's original media references from body text, and uses pandoc `--extract-media` to copy/rename images into the standard `images/figN_page1.ext` convention. DOCX page synthesis uses one page anchor per section when section breaks exist; if no section breaks are present, `page_count=None` and only section index entries are emitted. The shared rendering pipeline remains unchanged: converters populate `MarkdownDocument`, and pipeline handles frontmatter, images strategy, sanitizer, index, validator, and write-out.
 
 ### P7 Summary
-_pending_
+P7 completed EPUB conversion. `EpubConverter` is wired in through `core.dispatcher.get_converter("epub")`, uses `ebooklib.epub.read_epub` to read spine-ordered chapter documents, converts chapter XHTML through `markitdown.MarkItDown().convert_stream`, and emits one `Page` per chapter with `document_type="epub"` and EPUB metadata-derived title/language frontmatter. EPUB images are extracted from `ITEM_IMAGE` into the shared `images/figN_pageM.ext` naming convention, using the chapter that references each image or page `0` for global images; `markitdown` is installed and declared in `pyproject.toml` for P8 reuse with HTML. Tests cover three chapter anchors, metadata frontmatter, image extraction, dispatcher routing, and pipeline-rendered Markdown output.
 
 ### P8 Summary
 _pending_

@@ -40,7 +40,11 @@ def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
         from doc2md.converters.odt import OdtConverter
 
         return OdtConverter()
-    raise UnsupportedFormat(f"Unsupported format for P1: {format}")
+    if format == "epub":
+        from doc2md.converters.epub import EpubConverter
+
+        return EpubConverter()
+    raise UnsupportedFormat(f"Unsupported format: {format}")
 
 
 def classify_pdf(path: Path) -> Literal["digital", "scanned", "mixed"]:
