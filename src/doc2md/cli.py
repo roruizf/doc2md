@@ -12,12 +12,16 @@ from doc2md.utils.fs import iter_input_files, mirror_output_path
 from doc2md.utils.progress import ProgressBar
 
 app = typer.Typer(add_completion=False)
+VERSION = "0.1.0"
 
 
 @app.command()
 def convert(
-    input_path: Annotated[Path, typer.Argument(exists=True, file_okay=True, dir_okay=True)],
-    output: Annotated[Path, typer.Option("--output", "-o")],
+    input_path: Annotated[
+        Path | None,
+        typer.Argument(exists=True, file_okay=True, dir_okay=True),
+    ] = None,
+    output: Annotated[Path | None, typer.Option("--output", "-o")] = None,
     images: Annotated[
         Literal["placeholder", "omit", "vlm"],
         typer.Option("--images", help="Image handling strategy for extracted document images."),
@@ -78,7 +82,15 @@ def convert(
         typer.Option("--no-progress", help="Disable progress output for batch conversion."),
     ] = False,
     verbose: Annotated[bool, typer.Option("--verbose")] = False,
+    version: Annotated[bool, typer.Option("--version", help="Show doc2md version.")] = False,
 ) -> None:
+    if version:
+        typer.echo(VERSION)
+        raise typer.Exit()
+    if input_path is None or output is None:
+        typer.echo("INPUT_PATH and --output are required unless --version is used.", err=True)
+        raise typer.Exit(2)
+
     setup_logging(verbose)
     settings = Settings(
         images_strategy=images,

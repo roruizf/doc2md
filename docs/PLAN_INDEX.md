@@ -18,7 +18,7 @@
 - [x] P8 — HTML + TXT + Images
 - [x] P9 — Batch Mode
 - [x] P10 — VLM (OpenRouter)
-- [ ] P11a — Packaging
+- [x] P11a — Packaging
 - [ ] P11b — Quality + CI
 
 ## Phase Summaries
@@ -58,7 +58,7 @@ P9 completed batch mode. The CLI now accepts either a single file or directory i
 P10 completed VLM image descriptions. `pyproject.toml` now includes the runtime dependencies `openai`, `httpx`, and `tenacity`, plus optional extra `anthropic = ["anthropic"]`; no version pins were added beyond the existing `docling==2.92.0`. VLM settings are exposed through CLI flags `--vlm-provider`, `--vlm-model`, and `--vlm-cost-threshold`; `pipeline.run` auto-selects `deepseek/deepseek-vl2-small` for general documents and `deepseek/deepseek-ocr-2` for scanned/scanned-image documents, estimates cost via `images.vlm_pricing`, and falls back to placeholders when cost is denied. `rendering.markdown_renderer.render` still calls `_render_image`, which builds `ImageMeta` and delegates to `rendering.images_strategy.apply_strategy`; that strategy now calls `images.vlm_client.VlmClient.describe_image` for `--images=vlm`, caches results under `~/.cache/doc2md/vlm/`, retries 429/5xx responses with tenacity, and falls back to placeholder on terminal VLM failure. Mocked tests cover successful OpenRouter-style responses, retry then success, terminal failure fallback, cache hits, and non-interactive cost denial.
 
 ### P11a Summary
-_pending_
+P11a completed packaging and install documentation. `pyproject.toml` now has package metadata (`description`, `readme`, MIT license, authors, classifiers), console script `doc2md = "doc2md.cli:main"`, runtime dependencies (`beautifulsoup4`, `chardet`, `docling==2.92.0`, `ebooklib`, `httpx`, `langdetect`, `markitdown`, `openai`, `pillow`, `pytesseract`, `pypandoc`, `python-docx`, `typer`, `pymupdf`, `pyyaml`, `python-magic`, `pydantic>=2`, `markdownify`, `tenacity`, `tqdm`), dev extras, and optional `anthropic = ["anthropic"]`; no new version pins were added beyond the existing Docling pin. `README.md`, `LICENSE`, `Makefile`, `scripts/install_wsl.sh`, `docs/architecture.md`, and `docs/output_schema.md` are in place; README covers install, examples for every format, CLI flags, schema, env vars, and troubleshooting. Build/install was verified with `pip install .` in the project venv and `doc2md --version` returns `0.1.0`; `pipx` was not available in this environment, and a clean `uv` install was stopped because the Docling/PyTorch dependency chain began downloading large CUDA wheels, which is documented as a WSL/Linux caveat.
 
 ### P11b Summary
 _pending_
