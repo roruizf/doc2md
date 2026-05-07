@@ -56,7 +56,11 @@ def get_converter(format: str, input_path: Path | None = None) -> BaseConverter:
         from doc2md.converters.image import ImageConverter
 
         return ImageConverter()
-    raise UnsupportedFormat(f"Unsupported format: {format}")
+    location = f" for {input_path}" if input_path is not None else ""
+    raise UnsupportedFormat(
+        f"Unsupported format{location}: {format}. "
+        "Next step: provide a supported file type or check the input extension."
+    )
 
 
 def classify_pdf(path: Path) -> Literal["digital", "scanned", "mixed"]:

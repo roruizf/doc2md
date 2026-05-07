@@ -34,7 +34,12 @@ class PdfDigitalConverter(BaseConverter):
             return self._convert_with_docling(input_path, page_count)
         except Exception as exc:
             self.fallback_used = True
-            LOGGER.warning("Docling failed (%s), falling back to PyMuPDF raw extraction", exc)
+            LOGGER.warning(
+                "Docling failed while converting %s (%s); falling back to PyMuPDF raw extraction. "
+                "Next step: rerun with --verbose for details or inspect the source PDF.",
+                input_path,
+                exc,
+            )
             return self._convert_with_pymupdf(input_path, page_count)
 
     def _convert_with_docling(self, input_path: Path, page_count: int) -> MarkdownDocument:
@@ -115,7 +120,9 @@ def _docling_converter() -> DocumentConverter:
 def _page_count_or_raise_locked(input_path: Path) -> int:
     with fitz.open(input_path) as pdf:
         if pdf.is_encrypted:
-            raise LockedDocument(f"PDF is encrypted: {input_path}")
+            raise LockedDocument(
+                f"PDF is encrypted: {input_path}. Next step: provide --password."
+            )
         return len(pdf)
 
 

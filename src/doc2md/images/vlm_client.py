@@ -38,7 +38,10 @@ class VlmClient:
         try:
             description = self._describe_image_uncached(image_bytes, image_path)
         except Exception as exc:
-            raise VlmError(str(exc)) from exc
+            raise VlmError(
+                f"VLM image description failed for {image_path}: {exc}. "
+                "Next step: check API credentials, provider, model, or retry later."
+            ) from exc
 
         cache_path.parent.mkdir(parents=True, exist_ok=True)
         cache_path.write_text(description, encoding="utf-8")
@@ -88,7 +91,10 @@ class VlmClient:
         try:
             import anthropic
         except ImportError as exc:
-            raise VlmError("Install doc2md[anthropic] to use the anthropic provider") from exc
+            raise VlmError(
+                f"Anthropic provider requested for {image_path}, but the SDK is missing. "
+                "Next step: install doc2md[anthropic]."
+            ) from exc
 
         client = anthropic.Anthropic(api_key=self.api_key)
         response = client.messages.create(
@@ -122,7 +128,10 @@ def _api_key(provider: str) -> str:
     }[provider]
     value = os.environ.get(env_var)
     if not value:
-        raise VlmError(f"{env_var} is required for VLM image descriptions")
+        raise VlmError(
+            f"{env_var} is required for VLM image descriptions. "
+            f"Next step: export {env_var}=<token> or use a different --vlm-provider."
+        )
     return value
 
 

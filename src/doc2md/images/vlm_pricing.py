@@ -23,7 +23,10 @@ def fetch_model_pricing(model_id: str) -> ModelPricing:
                 prompt=float(pricing.get("prompt", 0.0)),
                 image=float(pricing.get("image", 0.0)),
             )
-    raise ValueError(f"Model pricing not found for {model_id}")
+    raise ValueError(
+        f"Model pricing not found for model {model_id}. "
+        "Next step: choose a model listed by OpenRouter or pass --vlm-model explicitly."
+    )
 
 
 def estimate_cost(num_images: int, pricing: ModelPricing) -> float:
@@ -35,7 +38,9 @@ def confirm_cost(estimated_cost: float, threshold: float) -> bool:
         return True
     if not sys.stdin.isatty():
         LOGGER.error(
-            "Estimated VLM cost $%.2f exceeds threshold $%.2f in a non-interactive run",
+            "Estimated VLM cost $%.2f exceeds threshold $%.2f before processing image paths; "
+            "Next step: increase --vlm-cost-threshold, run interactively, "
+            "or use --images placeholder.",
             estimated_cost,
             threshold,
         )

@@ -28,7 +28,10 @@ def apply_strategy(
         return f"[IMAGE OMITTED: Figure {image_meta.figure_number}]"
     if strategy == "vlm":
         if settings is None or image_meta.image_path is None:
-            raise ValueError("VLM strategy requires settings and an image path")
+            raise ValueError(
+                f"VLM strategy requires settings and an image path for {image_meta.output_path}. "
+                "Next step: call apply_strategy through markdown_renderer.render."
+            )
         try:
             client = VlmClient(
                 provider=settings.vlm_provider,
@@ -37,12 +40,16 @@ def apply_strategy(
             return _placeholder(image_meta, client.describe_image(image_meta.image_path))
         except VlmError as exc:
             LOGGER.warning(
-                "VLM description failed for %s; using placeholder: %s",
+                "VLM description failed for %s; using placeholder. "
+                "Next step: check API credentials/provider/model or retry later. Error: %s",
                 image_meta.output_path,
                 exc,
             )
             return _placeholder(image_meta, image_meta.description)
-    raise ValueError(f"Unknown image strategy: {strategy}")
+    raise ValueError(
+        f"Unknown image strategy for {image_meta.output_path}: {strategy}. "
+        "Next step: use placeholder, omit, or vlm."
+    )
 
 
 def _placeholder(image_meta: ImageMeta, description: str) -> str:

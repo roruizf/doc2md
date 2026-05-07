@@ -66,7 +66,10 @@ def _pandoc_convert(input_path: Path, extra_args: list[str] | None = None) -> st
             )
         )
     except OSError as exc:
-        raise ConversionFailed("pandoc binary not found; install with apt install pandoc") from exc
+        raise ConversionFailed(
+            f"pandoc binary not found while converting {input_path}. "
+            "Next step: install with apt install pandoc."
+        ) from exc
 
 
 def _strip_pandoc_image_refs(markdown: str) -> str:

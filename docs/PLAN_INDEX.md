@@ -19,7 +19,7 @@
 - [x] P9 — Batch Mode
 - [x] P10 — VLM (OpenRouter)
 - [x] P11a — Packaging
-- [ ] P11b — Quality + CI
+- [x] P11b — Quality + CI
 
 ## Phase Summaries
 (Each agent appends their Phase Summary here after completing their phase)
@@ -61,4 +61,4 @@ P10 completed VLM image descriptions. `pyproject.toml` now includes the runtime 
 P11a completed packaging and install documentation. `pyproject.toml` now has package metadata (`description`, `readme`, MIT license, authors, classifiers), console script `doc2md = "doc2md.cli:main"`, runtime dependencies (`beautifulsoup4`, `chardet`, `docling==2.92.0`, `ebooklib`, `httpx`, `langdetect`, `markitdown`, `openai`, `pillow`, `pytesseract`, `pypandoc`, `python-docx`, `typer`, `pymupdf`, `pyyaml`, `python-magic`, `pydantic>=2`, `markdownify`, `tenacity`, `tqdm`), dev extras, and optional `anthropic = ["anthropic"]`; no new version pins were added beyond the existing Docling pin. `README.md`, `LICENSE`, `Makefile`, `scripts/install_wsl.sh`, `docs/architecture.md`, and `docs/output_schema.md` are in place; README covers install, examples for every format, CLI flags, schema, env vars, and troubleshooting. Build/install was verified with `pip install .` in the project venv and `doc2md --version` returns `0.1.0`; `pipx` was not available in this environment, and a clean `uv` install was stopped because the Docling/PyTorch dependency chain began downloading large CUDA wheels, which is documented as a WSL/Linux caveat.
 
 ### P11b Summary
-_pending_
+P11b completed final quality and CI setup. Error and logging sites were audited and tightened for clearer next steps; default logging now keeps doc2md at INFO while suppressing chatty third-party loggers (`docling`, `httpx`, `urllib3`) to WARNING unless `--verbose` is used. GitHub Actions CI is defined in `.github/workflows/ci.yml` for Python 3.10, 3.11, and 3.12 with system dependencies, fixture generation, ruff, mypy, and pytest coverage fail-under 80; YAML syntax was validated with PyYAML because `actionlint` was not installed locally. `docs/performance.md` documents methodology, current smoke measurements, and caveats around Docling/PyTorch CUDA wheel downloads and long PDF benchmarks; full 500-page/50-page benchmark runs should be executed in a non-interactive runner before public release. Final local checks were run in chunks: ruff OK, mypy OK, unit suite 59 passed, non-PDF/integration suite 27 passed, logging coverage 100%, targeted PDF/error tests passed, and PDF locked tests passed with known Docling/Torch warnings.
