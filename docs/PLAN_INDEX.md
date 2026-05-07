@@ -16,7 +16,7 @@
 - [ ] P6 — DOCX + ODT
 - [x] P7 — EPUB
 - [x] P8 — HTML + TXT + Images
-- [ ] P9 — Batch Mode
+- [x] P9 — Batch Mode
 - [ ] P10 — VLM (OpenRouter)
 - [ ] P11a — Packaging
 - [ ] P11b — Quality + CI
@@ -52,7 +52,7 @@ P7 completed EPUB conversion. `EpubConverter` is wired in through `core.dispatch
 P8 completed lightweight format conversion. `HtmlConverter`, `TxtConverter`, and `ImageConverter` are wired through `core.dispatcher.get_converter` for `html`, `txt`, and `image`; HTML uses MarkItDown with a BeautifulSoup/markdownify fallback and extracts local `<img>` assets into the shared `images/figN_page1.ext` convention, TXT uses chardet-based decoding with low-confidence UTF-8 replacement fallback plus heading inference and language detection, and standalone images use PIL plus Tesseract OCR with `document_type="scanned-image"` while copying the source image as figure 1. All converters now work end-to-end for PDF digital/scanned/mixed/locked, DOCX, ODT, EPUB, HTML, TXT, and image; the CLI still accepts only a single file input path, so P9 should add directory input plus recursive batch traversal.
 
 ### P9 Summary
-_pending_
+P9 completed batch mode. The CLI now accepts either a single file or directory input; directory mode walks supported files with `utils.fs.iter_input_files`, supports `--recursive/-r`, `--flatten`, and `--no-progress`, mirrors or flattens output paths via `utils.fs.mirror_output_path`, wraps conversion with `utils.progress.ProgressBar`, isolates per-file failures, and prints a success/failure/elapsed summary while exiting zero for batch failures so the rest of the batch can complete. Batch mode works for the existing converter set (PDF digital/scanned/mixed/locked, DOCX, ODT, EPUB, HTML, TXT, image) and single-file CLI behavior remains unchanged. `images_strategy` remains fully Settings-driven; `markdown_renderer.render` calls `_render_image`, which builds `ImageMeta` and delegates to `rendering.images_strategy.apply_strategy`, where `vlm` still raises `NotImplementedError` for P10.
 
 ### P10 Summary
 _pending_
