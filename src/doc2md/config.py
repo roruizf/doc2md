@@ -9,3 +9,6 @@ class Settings(BaseModel):
     ocr_lang: str | None = None
     ocr_engine: Literal["docling", "direct"] = "docling"
     password: str | None = None
+    vlm_provider: Literal["openrouter", "openai", "anthropic"] = "openrouter"
+    vlm_model: str | None = None
+    vlm_cost_threshold: float = 1.0

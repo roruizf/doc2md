@@ -43,6 +43,21 @@ def convert(
         str | None,
         typer.Option("--password", help="Password for encrypted PDFs."),
     ] = None,
+    vlm_provider: Annotated[
+        Literal["openrouter", "openai", "anthropic"],
+        typer.Option("--vlm-provider", help="VLM provider for --images=vlm."),
+    ] = "openrouter",
+    vlm_model: Annotated[
+        str | None,
+        typer.Option("--vlm-model", help="VLM model ID; omit to auto-select by document type."),
+    ] = None,
+    vlm_cost_threshold: Annotated[
+        float,
+        typer.Option(
+            "--vlm-cost-threshold",
+            help="Prompt before VLM cost exceeds this amount; non-interactive runs auto-deny.",
+        ),
+    ] = 1.0,
     recursive: Annotated[
         bool,
         typer.Option(
@@ -70,6 +85,9 @@ def convert(
         ocr_lang=ocr_lang,
         ocr_engine=ocr_engine,
         password=password,
+        vlm_provider=vlm_provider,
+        vlm_model=vlm_model,
+        vlm_cost_threshold=vlm_cost_threshold,
     )
     if input_path.is_dir():
         _convert_batch(input_path, output, settings, recursive, flatten, no_progress)

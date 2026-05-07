@@ -53,5 +53,6 @@ def _render_image(image: ExtractedImage, output_path: Path, settings: Settings) 
         description=f"Page {image.page_number} image",
         output_path=image.path.relative_to(output_path.parent),
         page_number=image.page_number,
+        image_path=image.path,
     )
-    return apply_strategy(settings.images_strategy, image_meta)
+    return apply_strategy(settings.images_strategy, image_meta, settings)

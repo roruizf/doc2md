@@ -17,7 +17,7 @@
 - [x] P7 — EPUB
 - [x] P8 — HTML + TXT + Images
 - [x] P9 — Batch Mode
-- [ ] P10 — VLM (OpenRouter)
+- [x] P10 — VLM (OpenRouter)
 - [ ] P11a — Packaging
 - [ ] P11b — Quality + CI
 
@@ -55,7 +55,7 @@ P8 completed lightweight format conversion. `HtmlConverter`, `TxtConverter`, and
 P9 completed batch mode. The CLI now accepts either a single file or directory input; directory mode walks supported files with `utils.fs.iter_input_files`, supports `--recursive/-r`, `--flatten`, and `--no-progress`, mirrors or flattens output paths via `utils.fs.mirror_output_path`, wraps conversion with `utils.progress.ProgressBar`, isolates per-file failures, and prints a success/failure/elapsed summary while exiting zero for batch failures so the rest of the batch can complete. Batch mode works for the existing converter set (PDF digital/scanned/mixed/locked, DOCX, ODT, EPUB, HTML, TXT, image) and single-file CLI behavior remains unchanged. `images_strategy` remains fully Settings-driven; `markdown_renderer.render` calls `_render_image`, which builds `ImageMeta` and delegates to `rendering.images_strategy.apply_strategy`, where `vlm` still raises `NotImplementedError` for P10.
 
 ### P10 Summary
-_pending_
+P10 completed VLM image descriptions. `pyproject.toml` now includes the runtime dependencies `openai`, `httpx`, and `tenacity`, plus optional extra `anthropic = ["anthropic"]`; no version pins were added beyond the existing `docling==2.92.0`. VLM settings are exposed through CLI flags `--vlm-provider`, `--vlm-model`, and `--vlm-cost-threshold`; `pipeline.run` auto-selects `deepseek/deepseek-vl2-small` for general documents and `deepseek/deepseek-ocr-2` for scanned/scanned-image documents, estimates cost via `images.vlm_pricing`, and falls back to placeholders when cost is denied. `rendering.markdown_renderer.render` still calls `_render_image`, which builds `ImageMeta` and delegates to `rendering.images_strategy.apply_strategy`; that strategy now calls `images.vlm_client.VlmClient.describe_image` for `--images=vlm`, caches results under `~/.cache/doc2md/vlm/`, retries 429/5xx responses with tenacity, and falls back to placeholder on terminal VLM failure. Mocked tests cover successful OpenRouter-style responses, retry then success, terminal failure fallback, cache hits, and non-interactive cost denial.
 
 ### P11a Summary
 _pending_
