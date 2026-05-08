@@ -1,3 +1,4 @@
+from os import environ
 from pathlib import Path
 from time import perf_counter
 from typing import Annotated, Literal
@@ -13,6 +14,16 @@ from doc2md.utils.progress import ProgressBar
 
 app = typer.Typer(add_completion=False)
 VERSION = "0.1.0"
+
+
+def _env_float(name: str, default: float) -> float:
+    value = environ.get(name)
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except ValueError:
+        return default
 
 
 @app.command()
@@ -61,7 +72,7 @@ def convert(
             "--vlm-cost-threshold",
             help="Prompt before VLM cost exceeds this amount; non-interactive runs auto-deny.",
         ),
-    ] = 1.0,
+    ] = _env_float("DOC2MD_VLM_COST_THRESHOLD", 1.0),
     recursive: Annotated[
         bool,
         typer.Option(

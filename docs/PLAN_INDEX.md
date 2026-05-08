@@ -10,10 +10,10 @@
 - [x] P0 — Environment Setup
 - [x] P1 — Core Skeleton + PDF Digital MVP
 - [x] P2 — Rendering Layer
-- [ ] P3 — Docling Integration
-- [ ] P4 — Scanned PDFs (OCR)
-- [ ] P5 — Locked PDFs
-- [ ] P6 — DOCX + ODT
+- [x] P3 — Docling Integration
+- [x] P4 — Scanned PDFs (OCR)
+- [x] P5 — Locked PDFs
+- [x] P6 — DOCX + ODT
 - [x] P7 — EPUB
 - [x] P8 — HTML + TXT + Images
 - [x] P9 — Batch Mode

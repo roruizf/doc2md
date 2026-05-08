@@ -1,5 +1,10 @@
 # doc2md
 
+[![CI](https://github.com/roruizf/doc2md/actions/workflows/ci.yml/badge.svg)](https://github.com/roruizf/doc2md/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/roruizf/doc2md/main/pyproject.toml)](https://github.com/roruizf/doc2md/blob/main/pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Version](https://img.shields.io/github/v/release/roruizf/doc2md)](https://github.com/roruizf/doc2md/releases)
+
 doc2md converts PDFs, DOCX, ODT, EPUB, HTML, TXT, and standalone images into schema-compliant Markdown with YAML frontmatter, page anchors, extracted images, optional OCR, batch conversion, and optional VLM-generated image alt text.
 
 ## Quick Install On WSL

@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 from doc2md.config import Settings
@@ -52,7 +53,9 @@ def _prepare_vlm_settings(
     if settings.images_strategy != "vlm" or image_count == 0:
         return settings
 
-    model = settings.vlm_model or _default_vlm_model(document_type)
+    model = settings.vlm_model or os.environ.get("DOC2MD_VLM_MODEL") or _default_vlm_model(
+        document_type
+    )
     vlm_settings = settings.model_copy(update={"vlm_model": model})
     try:
         estimated_cost = estimate_cost(image_count, fetch_model_pricing(model))
