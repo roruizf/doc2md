@@ -5,6 +5,10 @@
 - [architecture.md](./architecture.md) — Architecture notes (populated in P11b)
 - [output_schema.md](./output_schema.md) — Output schema reference (populated in P11b)
 - [performance.md](./performance.md) — Benchmark results (populated in P11b)
+- [user_manual.md](./user_manual.md) — Complete external user manual
+- [capabilities.md](./capabilities.md) — Supported capabilities and known limitations
+- [ai_integration.md](./ai_integration.md) — AI/RAG integration guide
+- [troubleshooting.md](./troubleshooting.md) — Operational troubleshooting guide
 
 ## Current Status
 - [x] P0 — Environment Setup
@@ -20,6 +24,7 @@
 - [x] P10 — VLM (OpenRouter)
 - [x] P11a — Packaging
 - [x] P11b — Quality + CI
+- [x] Documentation Release — External user docs and repo polish
 
 ## Phase Summaries
 (Each agent appends their Phase Summary here after completing their phase)
@@ -62,3 +67,6 @@ P11a completed packaging and install documentation. `pyproject.toml` now has pac
 
 ### P11b Summary
 P11b completed final quality and CI setup. Error and logging sites were audited and tightened for clearer next steps; default logging now keeps doc2md at INFO while suppressing chatty third-party loggers (`docling`, `httpx`, `urllib3`) to WARNING unless `--verbose` is used. GitHub Actions CI is defined in `.github/workflows/ci.yml` for Python 3.10, 3.11, and 3.12 with system dependencies, fixture generation, ruff, mypy, and pytest coverage fail-under 80; YAML syntax was validated with PyYAML because `actionlint` was not installed locally. `docs/performance.md` documents methodology, current smoke measurements, and caveats around Docling/PyTorch CUDA wheel downloads and long PDF benchmarks; full 500-page/50-page benchmark runs should be executed in a non-interactive runner before public release. Final local checks were run in chunks: ruff OK, mypy OK, unit suite 59 passed, non-PDF/integration suite 27 passed, logging coverage 100%, targeted PDF/error tests passed, and PDF locked tests passed with known Docling/Torch warnings.
+
+### Documentation Release Summary — 2026-05-08
+Documentation release polish completed for external users. `PLAN_INDEX.md` now marks all implementation phases complete, README badges point to `roruizf/doc2md`, and the repo includes a complete user manual, capabilities/limitations guide, AI integration guide, troubleshooting guide, `.env.example`, CONTRIBUTING, CHANGELOG, SECURITY, and generated example input/output pairs under `docs/examples/`. The documented Python API `from doc2md import convert` is implemented and covered by a unit test; VLM environment overrides for `DOC2MD_VLM_MODEL` and `DOC2MD_VLM_COST_THRESHOLD` are wired so `.env.example` reflects real behavior. The documentation release commit is tagged `v0.1.0-docs`.
