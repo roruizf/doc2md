@@ -293,6 +293,16 @@ date_converted: "2026-05-08T10:00:00+07:00"
 document_type: "digital"
 language: "en"
 ocr_applied: false
+ocr_confidence_mean: null
+ocr_confidence_min: null
+ocr_low_confidence_pages: null
+ocr_text_chars: null
+ocr_text_chars_per_page: null
+ocr_suspicious_char_ratio: null
+ocr_language_requested: null
+ocr_language_used: null
+ocr_language_fallback_used: null
+ocr_degraded_conditions: null
 images_strategy: "placeholder"
 converter_version: "0.1.0"
 ```
@@ -310,8 +320,25 @@ Fields:
 | `document_type` | More specific classification, such as `digital`, `scanned`, `mixed`, `epub`, or `scanned-image`. |
 | `language` | Detected or metadata-provided language when available. |
 | `ocr_applied` | Whether OCR was used. |
+| `ocr_confidence_mean` | Mean Tesseract confidence, 0-100, when OCR confidence is available. |
+| `ocr_confidence_min` | Lowest Tesseract confidence observed. |
+| `ocr_low_confidence_pages` | Count of OCRed pages below doc2md's low-confidence threshold. |
+| `ocr_text_chars` | Total OCR text characters extracted. |
+| `ocr_text_chars_per_page` | Average OCR text density per page-like unit. |
+| `ocr_suspicious_char_ratio` | Ratio of unusual replacement/control characters in OCR text. |
+| `ocr_language_requested` | Tesseract language requested by `--ocr-lang` or auto detection. |
+| `ocr_language_used` | Tesseract language actually used after fallback. |
+| `ocr_language_fallback_used` | Whether OCR retried with fallback language. |
+| `ocr_degraded_conditions` | Machine-readable quality warnings such as `low_text_density`, `low_mean_confidence`, `ocr_confidence_unavailable`, or `ocr_language_fallback_used`. |
 | `images_strategy` | Image rendering strategy used for this output. |
 | `converter_version` | doc2md converter version. |
+
+For digital documents, OCR quality fields are `null`. For direct Tesseract OCR,
+doc2md fills confidence, density, suspicious-character, language, and degraded
+condition fields so an external system can evaluate OCR reliability from
+frontmatter alone. For Docling OCR paths where word confidence is not exposed,
+doc2md still reports text density and suspicious-character metrics and adds
+`ocr_confidence_unavailable` to `ocr_degraded_conditions`.
 
 ### Page Anchors
 

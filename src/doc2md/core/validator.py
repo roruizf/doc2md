@@ -4,7 +4,20 @@ from pathlib import Path
 
 from doc2md.core.document import MarkdownDocument
 
-NULLABLE_FRONTMATTER_FIELDS = {"page_count", "language"}
+NULLABLE_FRONTMATTER_FIELDS = {
+    "page_count",
+    "language",
+    "ocr_confidence_mean",
+    "ocr_confidence_min",
+    "ocr_low_confidence_pages",
+    "ocr_text_chars",
+    "ocr_text_chars_per_page",
+    "ocr_suspicious_char_ratio",
+    "ocr_language_requested",
+    "ocr_language_used",
+    "ocr_language_fallback_used",
+    "ocr_degraded_conditions",
+}
 
 
 @dataclass

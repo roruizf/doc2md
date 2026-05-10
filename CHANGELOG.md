@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to semantic versioning once public releases begin.
 
+## [Unreleased]
+
+### Added
+
+#### Core
+
+- Optional OCR quality frontmatter fields for confidence, text density,
+  suspicious-character ratio, language fallback, and degraded conditions.
+
+#### Converters
+
+- Structured OCR quality metrics for scanned PDFs, mixed PDFs, and standalone
+  images.
+
 ## [0.1.0] - 2026-05-08
 
 ### Added

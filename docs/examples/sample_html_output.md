@@ -4,10 +4,20 @@ title: Sample HTML
 source_file: sample.html
 format: html
 page_count: null
-date_converted: '2026-05-08T11:14:13.724406+07:00'
+date_converted: '2026-05-10T09:15:32.736810+07:00'
 document_type: html
 language: null
 ocr_applied: false
+ocr_confidence_mean: null
+ocr_confidence_min: null
+ocr_low_confidence_pages: null
+ocr_text_chars: null
+ocr_text_chars_per_page: null
+ocr_suspicious_char_ratio: null
+ocr_language_requested: null
+ocr_language_used: null
+ocr_language_fallback_used: null
+ocr_degraded_conditions: null
 images_strategy: placeholder
 converter_version: 0.1.0
 ---

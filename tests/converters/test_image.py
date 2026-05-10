@@ -15,6 +15,9 @@ def test_convert_sample_image_ocr_text_and_metadata(tmp_path: Path) -> None:
 
     assert doc.frontmatter.document_type == "scanned-image"
     assert doc.frontmatter.ocr_applied is True
+    assert doc.frontmatter.ocr_confidence_mean is not None
+    assert doc.frontmatter.ocr_text_chars is not None
+    assert doc.frontmatter.ocr_text_chars > 0
     assert doc.frontmatter.page_count == 1
     assert "Hello" in doc.pages[0].content
     assert "doc2md" in doc.pages[0].content

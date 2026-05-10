@@ -68,3 +68,15 @@ def test_render_frontmatter_keeps_iso_8601_date_string() -> None:
     parsed = yaml.safe_load(rendered.split("---", 2)[1])
 
     assert parsed["date_converted"] == date_converted
+
+
+def test_ocr_quality_fields_are_nullable_for_digital_documents() -> None:
+    frontmatter = Frontmatter(**valid_frontmatter_kwargs())
+
+    rendered = render_frontmatter(frontmatter)
+    parsed = yaml.safe_load(rendered.split("---", 2)[1])
+
+    assert parsed["ocr_applied"] is False
+    assert parsed["ocr_confidence_mean"] is None
+    assert parsed["ocr_text_chars"] is None
+    assert parsed["ocr_degraded_conditions"] is None

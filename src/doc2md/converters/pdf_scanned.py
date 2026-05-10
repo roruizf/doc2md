@@ -1,6 +1,7 @@
 import contextlib
 import io
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
@@ -16,7 +17,8 @@ from PIL import Image
 from doc2md.config import Settings
 from doc2md.core.base_converter import BaseConverter
 from doc2md.core.document import Frontmatter, IndexEntry, MarkdownDocument, Page
-from doc2md.ocr.tesseract_runner import ocr_image
+from doc2md.ocr.quality import OcrQualityPage, OcrQualitySummary, summarize_ocr_quality
+from doc2md.ocr.tesseract_runner import OcrImageResult, ocr_image_result
 from doc2md.utils.text_heuristics import detect_language
 
 LOGGER = logging.getLogger(__name__)
@@ -44,7 +46,7 @@ class PdfScannedConverter(BaseConverter):
             return self.convert_direct(input_path, ocr_lang, language)
 
         try:
-            doc = self.convert_docling(input_path, language)
+            doc = self.convert_docling(input_path, ocr_lang, language)
         except Exception as exc:
             self.fallback_used = True
             LOGGER.warning("Docling OCR failed (%s), falling back to direct Tesseract OCR", exc)
@@ -56,7 +58,12 @@ class PdfScannedConverter(BaseConverter):
             return self.convert_direct(input_path, ocr_lang, language)
         return doc
 
-    def convert_docling(self, input_path: Path, language: str | None) -> MarkdownDocument:
+    def convert_docling(
+        self,
+        input_path: Path,
+        ocr_lang: str,
+        language: str | None,
+    ) -> MarkdownDocument:
         from doc2md.converters.pdf_digital import _pages_from_docling
 
         options = PdfPipelineOptions(
@@ -72,8 +79,29 @@ class PdfScannedConverter(BaseConverter):
 
         page_count = _page_count(input_path)
         pages, index_entries = _pages_from_docling(result.document, page_count)
+        quality_summary = summarize_ocr_quality(
+            pages,
+            [
+                OcrQualityPage(
+                    page_number=page.number,
+                    text=page.content,
+                    confidence=None,
+                    requested_language=ocr_lang,
+                    used_language=ocr_lang,
+                    degraded_conditions=["ocr_confidence_unavailable"],
+                )
+                for page in pages
+            ],
+        )
         return MarkdownDocument(
-            frontmatter=scanned_frontmatter(input_path, pages, self.settings, "scanned", language),
+            frontmatter=scanned_frontmatter(
+                input_path,
+                pages,
+                self.settings,
+                "scanned",
+                language,
+                quality_summary,
+            ),
             pages=pages,
             index_entries=index_entries,
         )
@@ -89,19 +117,35 @@ class PdfScannedConverter(BaseConverter):
         resolved_language = language or _iso_language(resolved_ocr_lang)
         pages: list[Page] = []
         index_entries: list[IndexEntry] = []
+        quality_pages: list[OcrQualityPage] = []
 
         with fitz.open(input_path) as pdf:
             for page_number, page in enumerate(pdf, start=1):
                 if page_numbers is not None and page_number not in page_numbers:
                     continue
-                text, confidence = ocr_pdf_page(page, resolved_ocr_lang)
+                ocr_result = ocr_pdf_page_result(page, resolved_ocr_lang)
+                text = ocr_result.text
+                confidence = ocr_result.mean_confidence
                 if confidence < LOW_CONFIDENCE_THRESHOLD:
                     LOGGER.warning("Low OCR confidence on page %s: %.1f%%", page_number, confidence)
                 page_anchor = f"page-{page_number}"
                 pages.append(Page(number=page_number, anchor_id=page_anchor, content=text))
+                quality_pages.append(
+                    OcrQualityPage(
+                        page_number=page_number,
+                        text=text,
+                        confidence=confidence,
+                        min_confidence=ocr_result.min_confidence,
+                        requested_language=resolved_ocr_lang,
+                        used_language=ocr_result.used_language,
+                        language_fallback_used=ocr_result.language_fallback_used,
+                        degraded_conditions=ocr_result.degraded_conditions,
+                    )
+                )
                 index_entries.append(
                     IndexEntry(kind="page", label=f"Page {page_number}", anchor_id=page_anchor)
                 )
+        quality_summary = summarize_ocr_quality(pages, quality_pages)
 
         return MarkdownDocument(
             frontmatter=scanned_frontmatter(
@@ -110,6 +154,7 @@ class PdfScannedConverter(BaseConverter):
                 self.settings,
                 "scanned",
                 resolved_language,
+                quality_summary,
             ),
             pages=pages,
             index_entries=index_entries,
@@ -129,15 +174,45 @@ def resolve_ocr_language(pdf_path: Path, requested_lang: str | None) -> tuple[st
 
 
 def ocr_pdf_page(page: Any, lang: str) -> tuple[str, float]:
+    result = ocr_pdf_page_result(page, lang)
+    return result.text, result.mean_confidence
+
+
+@dataclass(frozen=True)
+class OcrPdfPageResult(OcrImageResult):
+    used_language: str
+    language_fallback_used: bool
+    degraded_conditions: list[str]
+
+
+def ocr_pdf_page_result(page: Any, lang: str) -> OcrPdfPageResult:
     pixmap = page.get_pixmap(dpi=300, alpha=False)
     image = Image.open(io.BytesIO(pixmap.tobytes("png")))
     try:
-        return ocr_image(image, lang)
+        image_result = ocr_image_result(image, lang)
+        return OcrPdfPageResult(
+            text=image_result.text,
+            mean_confidence=image_result.mean_confidence,
+            min_confidence=image_result.min_confidence,
+            word_count=image_result.word_count,
+            used_language=lang,
+            language_fallback_used=False,
+            degraded_conditions=[],
+        )
     except pytesseract.TesseractError:
         if lang == "eng":
             raise
         LOGGER.warning("Tesseract language '%s' failed, retrying with 'eng'", lang)
-        return ocr_image(image, "eng")
+        image_result = ocr_image_result(image, "eng")
+        return OcrPdfPageResult(
+            text=image_result.text,
+            mean_confidence=image_result.mean_confidence,
+            min_confidence=image_result.min_confidence,
+            word_count=image_result.word_count,
+            used_language="eng",
+            language_fallback_used=True,
+            degraded_conditions=[f"tesseract_language_failed:{lang}"],
+        )
 
 
 def scanned_frontmatter(
@@ -146,6 +221,7 @@ def scanned_frontmatter(
     settings: Settings,
     document_type: Literal["scanned", "mixed"],
     language: str | None,
+    ocr_quality: OcrQualitySummary | None = None,
 ) -> Frontmatter:
     return Frontmatter(
         schema_version="1.0",
@@ -157,6 +233,16 @@ def scanned_frontmatter(
         document_type=document_type,
         language=language,
         ocr_applied=True,
+        ocr_confidence_mean=ocr_quality.confidence_mean if ocr_quality else None,
+        ocr_confidence_min=ocr_quality.confidence_min if ocr_quality else None,
+        ocr_low_confidence_pages=ocr_quality.low_confidence_pages if ocr_quality else None,
+        ocr_text_chars=ocr_quality.text_chars if ocr_quality else None,
+        ocr_text_chars_per_page=ocr_quality.text_chars_per_page if ocr_quality else None,
+        ocr_suspicious_char_ratio=ocr_quality.suspicious_char_ratio if ocr_quality else None,
+        ocr_language_requested=ocr_quality.language_requested if ocr_quality else None,
+        ocr_language_used=ocr_quality.language_used if ocr_quality else None,
+        ocr_language_fallback_used=ocr_quality.language_fallback_used if ocr_quality else None,
+        ocr_degraded_conditions=ocr_quality.degraded_conditions if ocr_quality else None,
         images_strategy=settings.images_strategy,
         converter_version=settings.converter_version,
     )

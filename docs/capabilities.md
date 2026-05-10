@@ -12,6 +12,8 @@ and where users should expect tradeoffs.
 - Fall back to PyMuPDF raw extraction when Docling fails.
 - Classify PDFs as digital, scanned, mixed, or locked.
 - OCR scanned PDFs with Docling OCR or direct Tesseract.
+- Emit structured OCR quality metrics in frontmatter for scanned, mixed, and
+  standalone image OCR outputs.
 - Combine digital extraction and OCR for mixed PDFs.
 - Unlock password-protected PDFs when the correct password is supplied.
 - Extract PDF images into `images/` and reference them from Markdown.
@@ -52,6 +54,8 @@ and where users should expect tradeoffs.
 ### Standalone Images
 
 - OCR standalone images with Tesseract.
+- Emit OCR confidence, text density, suspicious-character, language fallback,
+  and degraded-condition metadata in frontmatter.
 - Copy the source image as a figure.
 - Emit `document_type: "scanned-image"`.
 
@@ -85,6 +89,8 @@ and where users should expect tradeoffs.
 - Configurable image strategies for lightweight, image-free, or AI-described
   outputs.
 - OCR support for scanned PDFs and standalone images.
+- Structured OCR quality metadata that lets external systems score reliability
+  by reading frontmatter only.
 - Locked PDF support when the password is available.
 - CLI-first workflow that works well in shell scripts and batch jobs.
 - Tested conversion paths and GitHub Actions CI.
@@ -97,6 +103,9 @@ and where users should expect tradeoffs.
 - VLM mode requires network access, provider credentials, and may incur cost.
 - Complex tables can degrade, especially with merged cells, nested tables, or
   unusual PDF layouts.
+- Docling OCR paths may not expose per-word confidence to doc2md; in that case
+  `ocr_confidence_mean` is `null` and `ocr_degraded_conditions` includes
+  `ocr_confidence_unavailable`.
 - Full large-document benchmark data still needs to be collected in a long-lived
   runner before a public performance claim.
 

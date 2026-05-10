@@ -61,6 +61,27 @@ doc2md report.pdf -o report.md --ocr-engine=direct --ocr-lang eng --verbose
 
 If the file is encrypted, pass `--password`.
 
+## OCR Quality Fields Are Null
+
+For digital documents, OCR quality fields are intentionally `null` because no
+OCR was applied.
+
+For scanned PDFs converted through Docling OCR, Tesseract-style confidence may
+not be available to doc2md. In that case, the output can include:
+
+```yaml
+ocr_confidence_mean: null
+ocr_degraded_conditions:
+- ocr_confidence_unavailable
+```
+
+If you need Tesseract confidence values for an external scoring system, run the
+PDF with direct OCR:
+
+```bash
+doc2md scanned.pdf -o scanned.md --ocr-engine=direct --ocr-lang eng
+```
+
 ## OPENROUTER_API_KEY Not Found
 
 `--images=vlm` with the OpenRouter provider requires `OPENROUTER_API_KEY`.

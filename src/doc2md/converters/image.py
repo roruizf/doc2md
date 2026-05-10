@@ -9,7 +9,8 @@ from doc2md.core.base_converter import BaseConverter
 from doc2md.core.document import Frontmatter, IndexEntry, MarkdownDocument, Page
 from doc2md.images.extractor import ExtractedImage
 from doc2md.images.naming import image_filename
-from doc2md.ocr.tesseract_runner import ocr_image
+from doc2md.ocr.quality import OcrQualityPage, OcrQualitySummary, summarize_ocr_quality
+from doc2md.ocr.tesseract_runner import ocr_image_result
 
 
 class ImageConverter(BaseConverter):
@@ -17,11 +18,26 @@ class ImageConverter(BaseConverter):
         self.settings = settings or Settings()
 
     def convert(self, input_path: Path) -> MarkdownDocument:
+        ocr_lang = self.settings.ocr_lang or "eng"
         with Image.open(input_path) as image:
-            text, _confidence = ocr_image(image, self.settings.ocr_lang or "eng")
+            ocr_result = ocr_image_result(image, ocr_lang)
+            text = ocr_result.text
         page = Page(number=1, anchor_id="page-1", content=text.strip())
+        quality_summary = summarize_ocr_quality(
+            [page],
+            [
+                OcrQualityPage(
+                    page_number=1,
+                    text=text,
+                    confidence=ocr_result.mean_confidence,
+                    min_confidence=ocr_result.min_confidence,
+                    requested_language=ocr_lang,
+                    used_language=ocr_lang,
+                )
+            ],
+        )
         return MarkdownDocument(
-            frontmatter=_frontmatter(input_path, self.settings),
+            frontmatter=_frontmatter(input_path, self.settings, quality_summary),
             pages=[page],
             index_entries=[
                 IndexEntry(kind="page", label="Page 1", anchor_id=page.anchor_id),
@@ -52,7 +68,11 @@ class ImageConverter(BaseConverter):
         ]
 
 
-def _frontmatter(input_path: Path, settings: Settings) -> Frontmatter:
+def _frontmatter(
+    input_path: Path,
+    settings: Settings,
+    quality_summary: OcrQualitySummary,
+) -> Frontmatter:
     return Frontmatter(
         schema_version="1.0",
         title=input_path.stem,
@@ -63,6 +83,16 @@ def _frontmatter(input_path: Path, settings: Settings) -> Frontmatter:
         document_type="scanned-image",
         language=None,
         ocr_applied=True,
+        ocr_confidence_mean=quality_summary.confidence_mean,
+        ocr_confidence_min=quality_summary.confidence_min,
+        ocr_low_confidence_pages=quality_summary.low_confidence_pages,
+        ocr_text_chars=quality_summary.text_chars,
+        ocr_text_chars_per_page=quality_summary.text_chars_per_page,
+        ocr_suspicious_char_ratio=quality_summary.suspicious_char_ratio,
+        ocr_language_requested=quality_summary.language_requested,
+        ocr_language_used=quality_summary.language_used,
+        ocr_language_fallback_used=quality_summary.language_fallback_used,
+        ocr_degraded_conditions=quality_summary.degraded_conditions,
         images_strategy=settings.images_strategy,
         converter_version=settings.converter_version,
     )

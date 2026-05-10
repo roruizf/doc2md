@@ -49,5 +49,9 @@ def test_mixed_pdf_pipeline_combines_digital_and_ocr_content(tmp_path: Path) -> 
 
     assert frontmatter["document_type"] == "mixed"
     assert frontmatter["ocr_applied"] is True
+    assert frontmatter["ocr_confidence_mean"] is not None
+    assert frontmatter["ocr_text_chars"] > 0
+    assert frontmatter["ocr_suspicious_char_ratio"] is not None
+    assert frontmatter["ocr_language_used"] == "eng"
     assert "Sample Digital PDF" in content
     assert "Introduction" in content

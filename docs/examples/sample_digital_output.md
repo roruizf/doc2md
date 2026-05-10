@@ -4,10 +4,20 @@ title: sample_digital
 source_file: sample_digital.pdf
 format: pdf
 page_count: 3
-date_converted: '2026-05-08T11:13:58.763655+07:00'
+date_converted: '2026-05-10T09:15:16.210812+07:00'
 document_type: digital
 language: null
 ocr_applied: false
+ocr_confidence_mean: null
+ocr_confidence_min: null
+ocr_low_confidence_pages: null
+ocr_text_chars: null
+ocr_text_chars_per_page: null
+ocr_suspicious_char_ratio: null
+ocr_language_requested: null
+ocr_language_used: null
+ocr_language_fallback_used: null
+ocr_degraded_conditions: null
 images_strategy: placeholder
 converter_version: 0.1.0
 ---

@@ -123,6 +123,16 @@ date_converted: "2026-05-03T18:15:00+07:00"
 document_type: "digital"
 language: "en"
 ocr_applied: false
+ocr_confidence_mean: null
+ocr_confidence_min: null
+ocr_low_confidence_pages: null
+ocr_text_chars: null
+ocr_text_chars_per_page: null
+ocr_suspicious_char_ratio: null
+ocr_language_requested: null
+ocr_language_used: null
+ocr_language_fallback_used: null
+ocr_degraded_conditions: null
 images_strategy: "placeholder"
 converter_version: "0.1.0"
 ```
